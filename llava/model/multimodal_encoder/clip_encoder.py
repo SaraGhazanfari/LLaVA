@@ -43,15 +43,19 @@ class CLIPVisionTower(nn.Module):
         return image_features
 
     @torch.no_grad()
-    def forward(self, images):
+    def forward(self, images, instruct=None):
         if type(images) is list:
             image_features = []
             for image in images:
-                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0), output_hidden_states=True)
+                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
+                                                      prompt=instruct[0], attn_mask=instruct[1],
+                                                      output_hidden_states=True)
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
                 image_features.append(image_feature)
         else:
-            image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype), output_hidden_states=True)
+            image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
+                                                   prompt=instruct[0], attn_mask=instruct[1],
+                                                   output_hidden_states=True)
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
 
         return image_features
@@ -88,6 +92,69 @@ class CLIPVisionTower(nn.Module):
         return (self.config.image_size // self.config.patch_size) ** 2
 
 
+class VaRVisionTower(CLIPVisionTower):
+    def __init__(self, vision_tower, args, delay_load=False):
+        super().__init__(vision_tower, args, delay_load)
+
+        self.is_loaded = False
+
+        self.vision_tower_name = vision_tower
+        self.select_layer = args.mm_vision_select_layer
+        self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
+
+        if not delay_load:
+            self.load_model()
+        elif getattr(args, 'unfreeze_mm_vision_tower', False):
+            self.load_model()
+        else:
+            self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
+
+    def load_model(self, device_map=None):
+        from .var.vision_model import PromptedVisionTransformer
+        from transformers import AutoTokenizer
+        from .var.transform import PreprocessCfg, image_transform_v2
+        if self.is_loaded:
+            print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
+            return
+        self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, device_map=device_map)
+        self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
+        preprocess_dict = {'size': (336, 336),
+                           'mode': 'RGB',
+                           'mean': (0.48145466, 0.4578275, 0.40821073),
+                           'std': (0.26862954, 0.26130258, 0.27577711),
+                           'interpolation': 'bicubic',
+                           'resize_mode': 'shortest',
+                           'fill_color': 0}
+        self.image_processor = image_transform_v2(PreprocessCfg(**preprocess_dict), is_train=False)
+        self.vision_tower.requires_grad_(False)
+        self.is_loaded = True
+
+    def feature_select(self, image_forward_outs):
+        image_features = image_forward_outs.hidden_states[self.select_layer]
+        if self.select_feature == 'patch':
+            image_features = image_features[:, 1:]
+        elif self.select_feature == 'cls_patch':
+            image_features = image_features
+        else:
+            raise ValueError(f'Unexpected select feature: {self.select_feature}')
+        return image_features
+
+    @torch.no_grad()
+    def forward(self, images, instruct=None):
+        if type(images) is list:
+            image_features = []
+            for image in images:
+                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
+                                                      output_hidden_states=True)
+                image_feature = self.feature_select(image_forward_out).to(image.dtype)
+                image_features.append(image_feature)
+        else:
+            image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
+                                                   output_hidden_states=True)
+            image_features = self.feature_select(image_forward_outs).to(images.dtype)
+
+        return image_features
+
 
 class CLIPVisionTowerS2(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
@@ -102,7 +169,8 @@ class CLIPVisionTowerS2(CLIPVisionTower):
         try:
             from s2wrapper import forward as multiscale_forward
         except ImportError:
-            raise ImportError('Package s2wrapper not found! Please install by running: \npip install git+https://github.com/bfshi/scaling_on_scales.git')
+            raise ImportError(
+                'Package s2wrapper not found! Please install by running: \npip install git+https://github.com/bfshi/scaling_on_scales.git')
         self.multiscale_forward = multiscale_forward
 
         # change resize/crop size in preprocessing to the largest image size in s2_scale
@@ -126,19 +194,22 @@ class CLIPVisionTowerS2(CLIPVisionTower):
 
     @torch.no_grad()
     def forward_feature(self, images):
-        image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype), output_hidden_states=True)
+        image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
+                                               output_hidden_states=True)
         image_features = self.feature_select(image_forward_outs).to(images.dtype)
         return image_features
 
     @torch.no_grad()
-    def forward(self, images):
+    def forward(self, images, instruct=None):
         if type(images) is list:
             image_features = []
             for image in images:
-                image_feature = self.multiscale_forward(self.forward_feature, image.unsqueeze(0), img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
+                image_feature = self.multiscale_forward(self.forward_feature, image.unsqueeze(0),
+                                                        img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
                 image_features.append(image_feature)
         else:
-            image_features = self.multiscale_forward(self.forward_feature, images, img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
+            image_features = self.multiscale_forward(self.forward_feature, images, img_sizes=self.s2_scales,
+                                                     max_split_size=self.s2_split_size)
 
         return image_features
 
