@@ -162,7 +162,7 @@ class VaRVisionTower(CLIPVisionTower):
 
     @property
     def config(self):
-        return CLIPVisionConfig({
+        return CLIPVisionConfig(**{
             "_name_or_path": "openai/clip-vit-large-patch14-336",
             "attention_dropout": 0.0,
             "dropout": 0.0,
