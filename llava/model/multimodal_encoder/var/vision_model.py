@@ -464,6 +464,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         ## VaR Cross attention
         print(prompt.shape)
         print(self.text_embedding(prompt).shape)
+        print(self.text_projector(self.text_embedding(prompt)).shape)
         prompt = self.text_projector(self.text_embedding(prompt))
         attn_mask = attn_mask.unsqueeze(dim=1).unsqueeze(dim=1).repeat((1, self.heads, x.shape[1], 1))
         attn_mask = attn_mask.reshape(-1, attn_mask.shape[2], attn_mask.shape[3])
