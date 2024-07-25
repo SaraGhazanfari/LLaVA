@@ -116,7 +116,7 @@ class VaRVisionTower(CLIPVisionTower):
         if self.is_loaded:
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
-        self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, device_map=device_map)
+        self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name).to(device_map)
         self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
         preprocess_dict = {'size': (336, 336),
                            'mode': 'RGB',
