@@ -48,13 +48,11 @@ class CLIPVisionTower(nn.Module):
             image_features = []
             for image in images:
                 image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
-                                                      prompt=instruct[0], attn_mask=instruct[1],
                                                       output_hidden_states=True)
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
                 image_features.append(image_feature)
         else:
             image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
-                                                   prompt=instruct[0], attn_mask=instruct[1],
                                                    output_hidden_states=True)
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
 
@@ -118,7 +116,7 @@ class VaRVisionTower(CLIPVisionTower):
             return
         vision_config = {
             "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
-            "output_dim": 768
+            "output_dim": 768, "pool_type": "none"
         }
         self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
         self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
@@ -149,12 +147,12 @@ class VaRVisionTower(CLIPVisionTower):
             image_features = []
             for image in images:
                 image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
-                                                      output_hidden_states=True)
+                                                      prompt=instruct[0], attn_mask=instruct[1])
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
                 image_features.append(image_feature)
         else:
             image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
-                                                   output_hidden_states=True)
+                                                   prompt=instruct[0], attn_mask=instruct[1])
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
 
         return image_features
