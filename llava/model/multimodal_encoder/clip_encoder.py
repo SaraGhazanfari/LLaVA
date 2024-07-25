@@ -185,6 +185,10 @@ class VaRVisionTower(CLIPVisionTower):
     def device(self):
         return next(self.vision_tower.parameters()).device
 
+    @property
+    def dtype(self):
+        return next(self.vision_tower.parameters()).dtype
+
 
 class CLIPVisionTowerS2(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
