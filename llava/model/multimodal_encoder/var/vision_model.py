@@ -461,17 +461,6 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         # shape = [*, grid ** 2 + 1, width]
         x = x + self.positional_embedding.to(x.dtype)
 
-        ## VaR Cross attention
-        for row_idx in range(prompt.shape[0]):
-            for col_idx in range(prompt.shape[1]):
-                print(prompt[row_idx, col_idx], end=" ")
-            print()
-
-        for row_idx in range(attn_mask.shape[0]):
-            for col_idx in range(attn_mask.shape[1]):
-                print(attn_mask[row_idx, col_idx], end=" ")
-            print()
-
         prompt = self.text_embedding(prompt)
         prompt = self.text_projector(prompt)
         attn_mask = attn_mask.unsqueeze(dim=1).unsqueeze(dim=1).repeat((1, self.heads, x.shape[1], 1))
