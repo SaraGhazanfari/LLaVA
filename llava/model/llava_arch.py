@@ -154,7 +154,7 @@ class LlavaMetaForCausalLM(ABC):
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
             concat_images = torch.cat([image for image in images], dim=0)
-            image_features = self.encode_images(concat_images, [position_ids, attention_mask])
+            image_features = self.encode_images(concat_images, [input_ids, attention_mask])
             split_sizes = [image.shape[0] for image in images]
             image_features = torch.split(image_features, split_sizes, dim=0)
             mm_patch_merge_type = getattr(self.config, 'mm_patch_merge_type', 'flat')
@@ -199,7 +199,7 @@ class LlavaMetaForCausalLM(ABC):
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
-            image_features = self.encode_images(images, [position_ids, attention_mask])
+            image_features = self.encode_images(images, [input_ids, attention_mask])
 
         # TODO: image start / end is not implemented here to support pretraining.
         if getattr(self.config, 'tune_mm_mlp_adapter', False) and getattr(self.config, 'mm_use_im_start_end', False):
