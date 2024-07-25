@@ -88,16 +88,16 @@ class PatchDropout(nn.Module):
 
 class Attention(nn.Module):
     def __init__(
-            self,
-            dim: int,
-            num_heads: int = 8,
-            qkv_bias: bool = True,
-            scaled_cosine: bool = False,
-            scale_heads: bool = False,
-            logit_scale_max: float = math.log(1. / 0.01),
-            batch_first: bool = True,
-            attn_drop: float = 0.,
-            proj_drop: float = 0.
+        self,
+        dim: int,
+        num_heads: int = 8,
+        qkv_bias: bool = True,
+        scaled_cosine: bool = False,
+        scale_heads: bool = False,
+        logit_scale_max: float = math.log(1. / 0.01),
+        batch_first: bool = True,
+        attn_drop: float = 0.,
+        proj_drop: float = 0.
     ):
         super().__init__()
         self.scaled_cosine = scaled_cosine
@@ -186,12 +186,12 @@ class Attention(nn.Module):
 
 class AttentionalPooler(nn.Module):
     def __init__(
-            self,
-            d_model: int,
-            context_dim: int,
-            n_head: int = 8,
-            n_queries: int = 256,
-            norm_layer: Callable = LayerNorm,
+        self,
+        d_model: int,
+        context_dim: int,
+        n_head: int = 8,
+        n_queries: int = 256,
+        norm_layer: Callable = LayerNorm,
     ):
         super().__init__()
         self.query = nn.Parameter(torch.randn(n_queries, d_model))
@@ -209,15 +209,15 @@ class AttentionalPooler(nn.Module):
 
 class ResidualAttentionBlock(nn.Module):
     def __init__(
-            self,
-            d_model: int,
-            n_head: int,
-            mlp_ratio: float = 4.0,
-            ls_init_value: float = None,
-            act_layer: Callable = nn.GELU,
-            norm_layer: Callable = LayerNorm,
-            is_cross_attention: bool = False,
-            batch_first: bool = True,
+        self,
+        d_model: int,
+        n_head: int,
+        mlp_ratio: float = 4.0,
+        ls_init_value: float = None,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        is_cross_attention: bool = False,
+        batch_first: bool = True,
     ):
         super().__init__()
 
@@ -237,11 +237,11 @@ class ResidualAttentionBlock(nn.Module):
         self.ls_2 = LayerScale(d_model, ls_init_value) if ls_init_value is not None else nn.Identity()
 
     def attention(
-            self,
-            q_x: torch.Tensor,
-            k_x: Optional[torch.Tensor] = None,
-            v_x: Optional[torch.Tensor] = None,
-            attn_mask: Optional[torch.Tensor] = None,
+        self,
+        q_x: torch.Tensor,
+        k_x: Optional[torch.Tensor] = None,
+        v_x: Optional[torch.Tensor] = None,
+        attn_mask: Optional[torch.Tensor] = None,
     ):
         k_x = k_x if k_x is not None else q_x
         v_x = v_x if v_x is not None else q_x
@@ -253,11 +253,11 @@ class ResidualAttentionBlock(nn.Module):
         )[0]
 
     def forward(
-            self,
-            q_x: torch.Tensor,
-            k_x: Optional[torch.Tensor] = None,
-            v_x: Optional[torch.Tensor] = None,
-            attn_mask: Optional[torch.Tensor] = None,
+        self,
+        q_x: torch.Tensor,
+        k_x: Optional[torch.Tensor] = None,
+        v_x: Optional[torch.Tensor] = None,
+        attn_mask: Optional[torch.Tensor] = None,
     ):
         k_x = self.ln_1_kv(k_x) if hasattr(self, "ln_1_kv") and k_x is not None else None
         v_x = self.ln_1_kv(v_x) if hasattr(self, "ln_1_kv") and v_x is not None else None
@@ -277,15 +277,15 @@ def _expand_token(token, batch_size: int):
 
 class Transformer(nn.Module):
     def __init__(
-            self,
-            width: int,
-            layers: int,
-            heads: int,
-            mlp_ratio: float = 4.0,
-            ls_init_value: float = None,
-            act_layer: Callable = nn.GELU,
-            norm_layer: Callable = LayerNorm,
-            batch_first: bool = True,
+        self,
+        width: int,
+        layers: int,
+        heads: int,
+        mlp_ratio: float = 4.0,
+        ls_init_value: float = None,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        batch_first: bool = True,
     ):
         super().__init__()
         self.width = width
@@ -329,26 +329,26 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
     output_tokens: torch.jit.Final[bool]
 
     def __init__(
-            self,
-            image_size: int,
-            patch_size: int,
-            width: int,
-            layers: int,
-            heads: int,
-            mlp_ratio: float,
-            ls_init_value: float = None,
-            attentional_pool: bool = False,
-            attn_pooler_queries: int = 256,
-            attn_pooler_heads: int = 8,
-            output_dim: int = 512,
-            patch_dropout: float = 0.,
-            no_ln_pre: bool = False,
-            pos_embed_type: str = 'learnable',
-            pool_type: str = 'tok',
-            final_ln_after_pool: bool = False,
-            act_layer: Callable = nn.GELU,
-            norm_layer: Callable = LayerNorm,
-            output_tokens: bool = False,
+        self,
+        image_size: int,
+        patch_size: int,
+        width: int,
+        layers: int,
+        heads: int,
+        mlp_ratio: float,
+        ls_init_value: float = None,
+        attentional_pool: bool = False,
+        attn_pooler_queries: int = 256,
+        attn_pooler_heads: int = 8,
+        output_dim: int = 512,
+        patch_dropout: float = 0.,
+        no_ln_pre: bool = False,
+        pos_embed_type: str = 'learnable',
+        pool_type: str = 'tok',
+        final_ln_after_pool: bool = False,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        output_tokens: bool = False,
     ):
         super().__init__()
         assert pool_type in ('tok', 'avg', 'none')
@@ -462,7 +462,10 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         x = x + self.positional_embedding.to(x.dtype)
 
         ## VaR Cross attention
-        print(prompt.shape)
+        for row_idx in range(prompt.shape[0]):
+            for col_idx in range(prompt.shape[1]):
+                print(prompt[row_idx, col_idx], end=" ")
+            print()
         prompt = self.text_embedding(prompt)
         prompt = self.text_projector(prompt)
         attn_mask = attn_mask.unsqueeze(dim=1).unsqueeze(dim=1).repeat((1, self.heads, x.shape[1], 1))
