@@ -324,7 +324,7 @@ class Transformer(nn.Module):
             all_layers.append(x)
         if not self.batch_first:
             x = x.transpose(0, 1)  # LND -> NLD
-        print(len(all_layers), all_layers[0].shape)
+
         all_layers = torch.stack(all_layers, dim=0)
         return x, all_layers
 
