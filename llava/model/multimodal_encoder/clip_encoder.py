@@ -182,6 +182,10 @@ class VaRVisionTower(CLIPVisionTower):
             "transformers_version": "4.42.4"
         })
 
+    @property
+    def hidden_size(self):
+        return self.config.hidden_size
+
 
 class CLIPVisionTowerS2(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
