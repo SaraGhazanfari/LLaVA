@@ -9,7 +9,7 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
 
-from utils import to_2tuple, get_2d_sincos_pos_embed
+from .utils import to_2tuple, get_2d_sincos_pos_embed
 
 
 class LayerNormFp32(nn.LayerNorm):
