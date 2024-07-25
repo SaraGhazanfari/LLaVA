@@ -133,7 +133,6 @@ class VaRVisionTower(CLIPVisionTower):
         self.is_loaded = True
 
     def feature_select(self, image_forward_outs):
-        print(len(image_forward_outs), image_forward_outs[0].shape)
         image_features = image_forward_outs[self.select_layer]
         if self.select_feature == 'patch':
             image_features = image_features[:, 1:]
