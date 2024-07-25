@@ -120,6 +120,7 @@ class VaRVisionTower(CLIPVisionTower):
             "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
             "output_dim": 768
         }
+        print(device_map)
         self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config).to(
             device_map)
         self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
