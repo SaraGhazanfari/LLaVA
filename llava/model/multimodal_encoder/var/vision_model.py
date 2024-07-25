@@ -312,6 +312,7 @@ class Transformer(nn.Module):
         return self.resblocks[0].mlp.c_fc.weight.dtype
 
     def forward(self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None):
+        all_layers = list()
         if not self.batch_first:
             x = x.transpose(0, 1).contiguous()  # NLD -> LND
         for r in self.resblocks:
@@ -320,9 +321,10 @@ class Transformer(nn.Module):
                 x = checkpoint(r, x, None, None, attn_mask)
             else:
                 x = r(x, attn_mask=attn_mask)
+            all_layers.append(x)
         if not self.batch_first:
             x = x.transpose(0, 1)  # LND -> NLD
-        return x
+        return x, all_layers
 
 
 class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
@@ -469,7 +471,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
 
         x = self.patch_dropout(x)
         x = self.ln_pre(x)
-        x = self.transformer(x)
+        _, x = self.transformer(x)
 
         if self.attn_pool is not None:
             if self.attn_pool_contrastive is not None:
