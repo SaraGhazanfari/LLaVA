@@ -706,7 +706,7 @@ class LazySupervisedDataset(Dataset):
         if 'image' in sources[0]:
             image_file = self.list_data_dict[i]['image']
             image_folder = self.data_args.image_folder
-            image = Image.open(os.path.join(image_folder, image_file))  # .convert('RGB')
+            image = Image.open(os.path.join(image_folder, image_file)).convert('RGB')
             if self.data_args.image_aspect_ratio == 'pad':
                 def expand2square(pil_img, background_color):
                     width, height = pil_img.size
