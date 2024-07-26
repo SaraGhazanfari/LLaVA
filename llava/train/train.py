@@ -700,10 +700,12 @@ class LazySupervisedDataset(Dataset):
             image_file = self.list_data_dict[i]['image']
             image_folder = self.data_args.image_folder
             processor = self.data_args.image_processor
-            from torchvision.transforms import Normalize
+            from torchvision.transforms import Normalize, CenterCrop
             for t in processor.transforms:
                 if isinstance(t, Normalize):
                     image_mean = t.mean
+                if isinstance(t, CenterCrop):
+                    crop_size = t.size
 
             image = Image.open(os.path.join(image_folder, image_file))  # .convert('RGB')
             if self.data_args.image_aspect_ratio == 'pad':
@@ -742,8 +744,8 @@ class LazySupervisedDataset(Dataset):
             data_dict['image'] = image
         elif self.data_args.is_multimodal:
             # image does not exist in the data, but the model is multimodal
-            crop_size = self.data_args.image_processor.crop_size
-            data_dict['image'] = torch.zeros(3, crop_size['height'], crop_size['width'])
+            # crop_size = self.data_args.image_processor.crop_size
+            data_dict['image'] = torch.zeros(3, crop_size[0], crop_size[1])
         return data_dict
 
 
