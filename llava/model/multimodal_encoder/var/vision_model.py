@@ -353,6 +353,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
         output_tokens: bool = False,
+        _name_or_path = None
     ):
         super().__init__()
         assert pool_type in ('tok', 'avg', 'none')
