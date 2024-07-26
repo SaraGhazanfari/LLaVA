@@ -152,6 +152,11 @@ class VaRVisionTower(CLIPVisionTower):
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
                 image_features.append(image_feature)
         else:
+            print(instruct[0])
+            for sample in instruct[0]:
+                for num in sample:
+                    print(num),
+                print()
             image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
                                                    prompt=instruct[0][:, 2:], attn_mask=instruct[1][:, 2:])
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
