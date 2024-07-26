@@ -693,20 +693,19 @@ class LazySupervisedDataset(Dataset):
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
         sources = self.list_data_dict[i]
+        processor = self.data_args.image_processor
+        from torchvision.transforms import Normalize, CenterCrop
+        for t in processor.transforms:
+            if isinstance(t, Normalize):
+                image_mean = t.mean
+            if isinstance(t, CenterCrop):
+                crop_size = t.size
         if isinstance(i, int):
             sources = [sources]
         assert len(sources) == 1, "Don't know why it is wrapped to a list"  # FIXME
         if 'image' in sources[0]:
             image_file = self.list_data_dict[i]['image']
             image_folder = self.data_args.image_folder
-            processor = self.data_args.image_processor
-            from torchvision.transforms import Normalize, CenterCrop
-            for t in processor.transforms:
-                if isinstance(t, Normalize):
-                    image_mean = t.mean
-                if isinstance(t, CenterCrop):
-                    crop_size = t.size
-
             image = Image.open(os.path.join(image_folder, image_file))  # .convert('RGB')
             if self.data_args.image_aspect_ratio == 'pad':
                 def expand2square(pil_img, background_color):
