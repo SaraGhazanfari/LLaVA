@@ -149,9 +149,6 @@ class VaRVisionTower(CLIPVisionTower):
             instruct[1][instruct[0] < 0] = 0
         else:
             instruct[1] = torch.ones_like(instruct[0], device=instruct[0].device)
-        print(self.device)
-        print(instruct[0].device)
-        print(instruct[1].device)
         if type(images) is list:
             image_features = []
             for image in images:
