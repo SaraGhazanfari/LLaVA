@@ -119,6 +119,8 @@ class VaRVisionTower(CLIPVisionTower):
             "output_dim": 768, "pool_type": "none"  # No pooling needed
         }
         self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
+        if device_map:
+            self.vision_tower.to('cuda:0')
         self.vision_tower.proj = None  # No projection from 1024 to 768 needed
         self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
         preprocess_dict = {'size': (336, 336),
