@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m llava.eval.model_vqa_loader \
+$SCRATCH/aa10460/pytorch-example/ -m llava.eval.model_vqa_loader \
     --model-path ./checkpoints/llava-v1.7-7b \
     --question-file $VAST/eval/textvqa/llava_textvqa_val_v051_ocr.jsonl \
     --image-folder $VAST/eval/textvqa/train_images \
@@ -8,6 +8,6 @@ python -m llava.eval.model_vqa_loader \
     --temperature 0 \
     --conv-mode vicuna_v1
 
-python -m llava.eval.eval_textvqa \
+$SCRATCH/aa10460/pytorch-example/ -m llava.eval.eval_textvqa \
     --annotation-file $VAST/eval/textvqa/TextVQA_0.5.1_val.json \
     --result-file $VAST/eval/textvqa/answers/llava-v1.7-7b.jsonl
