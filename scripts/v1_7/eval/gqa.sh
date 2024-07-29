@@ -36,4 +36,4 @@ GQADIR="$VAST/eval/gqa/data"
 #$SCRATCH/aa10460/pytorch-example/python scripts/convert_gqa_for_eval.py --src $output_file --dst $GQADIR/testdev_balanced_predictions.json
 
 cd $GQADIR
-$SCRATCH/aa10460/pytorch-example/python $VAST/eval/gqa/eval.py --tier testdev_balanced
+$SCRATCH/aa10460/pytorch-example/python $VAST/eval/gqa/eval.py --tier $GQADIR/testdev_balanced
