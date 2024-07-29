@@ -146,13 +146,6 @@ class LlavaMetaForCausalLM(ABC):
         self, input_ids, position_ids, attention_mask, past_key_values, labels,
         images, image_sizes=None
     ):
-        print('input_ids', input_ids)
-        print('===========================================================================')
-        print('attention_mask', attention_mask)
-        print('===========================================================================')
-        print('past_key_values', past_key_values)
-        print('===========================================================================')
-        print('labels', labels)
         vision_tower = self.get_vision_tower()
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
