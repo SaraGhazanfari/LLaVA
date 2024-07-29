@@ -1,22 +1,19 @@
 import argparse
-import torch
-import os
 import json
-from tqdm import tqdm
+import math
+import os
+
+import pandas as pd
 import shortuuid
+import torch
+from PIL import Image
+from tqdm import tqdm
 
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.conversation import conv_templates, SeparatorStyle
+from llava.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria
 from llava.model.builder import load_pretrained_model
 from llava.utils import disable_torch_init
-from llava.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria
-
-from PIL import Image
-import math
-
-import pandas as pd
-from PIL import Image
-import os
 
 
 def split_list(lst, n):
@@ -74,7 +71,7 @@ def eval_model(args):
 
         input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
 
-        image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'][0]
+        image_tensor = image_processor(image)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
         keywords = [stop_str]
