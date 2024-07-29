@@ -164,19 +164,25 @@ def expand2square(pil_img, background_color):
 
 
 def process_images(images, image_processor, model_cfg):
+    from torchvision.transforms import Normalize, CenterCrop
+    for t in image_processor.transforms:
+        if isinstance(t, Normalize):
+            image_mean = t.mean
+        if isinstance(t, CenterCrop):
+            crop_size = t.size
     image_aspect_ratio = getattr(model_cfg, "image_aspect_ratio", None)
     new_images = []
     if image_aspect_ratio == 'pad':
         for image in images:
-            image = expand2square(image, tuple(int(x*255) for x in image_processor.image_mean))
-            image = image_processor.preprocess(image, return_tensors='pt')['pixel_values'][0]
+            image = expand2square(image, tuple(int(x*255) for x in image_mean))
+            image = image_processor(image)
             new_images.append(image)
     elif image_aspect_ratio == "anyres":
         for image in images:
             image = process_anyres_image(image, image_processor, model_cfg.image_grid_pinpoints)
             new_images.append(image)
     else:
-        return image_processor(images, return_tensors='pt')['pixel_values']
+        return image_processor(images)
     if all(x.shape == new_images[0].shape for x in new_images):
         new_images = torch.stack(new_images, dim=0)
     return new_images
@@ -226,7 +232,7 @@ class KeywordsStoppingCriteria(StoppingCriteria):
             self.keyword_ids.append(torch.tensor(cur_keyword_ids))
         self.tokenizer = tokenizer
         self.start_len = input_ids.shape[1]
-    
+
     def call_for_batch(self, output_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         offset = min(output_ids.shape[1] - self.start_len, self.max_keyword_len)
         self.keyword_ids = [keyword_id.to(output_ids.device) for keyword_id in self.keyword_ids]
@@ -239,7 +245,7 @@ class KeywordsStoppingCriteria(StoppingCriteria):
             if keyword in outputs:
                 return True
         return False
-    
+
     def __call__(self, output_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         outputs = []
         for i in range(output_ids.shape[0]):
