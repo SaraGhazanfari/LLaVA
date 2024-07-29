@@ -1,7 +1,7 @@
 #!/bin/bash
 
 $SCRATCH/aa10460/pytorch-example/python -m llava.eval.model_vqa_loader \
-    --model-path liuhaotian/llava-v1.7-7b \
+    --model-path ./checkpoints/llava-v1.7-7b \
     --question-file $VAST/eval/pope/llava_pope_test.jsonl \
     --image-folder $VAST/eval/pope/val2014 \
     --answers-file $VAST/eval/pope/answers/llava-v1.7-7b.jsonl \
