@@ -11,7 +11,7 @@ GQADIR="$VAST/eval/gqa/data"
 
 for IDX in $(seq 0 $((CHUNKS-1))); do
     CUDA_VISIBLE_DEVICES=${GPULIST[$IDX]} $SCRATCH/aa10460/pytorch-example/python -m llava.eval.model_vqa_loader \
-        --model-path liuhaotian/llava-v1.7-7b \
+        --model-path ./checkpoints/llava-v1.7-7b \
         --question-file $VAST/eval/gqa/$SPLIT.jsonl \
         --image-folder $VAST/eval/gqa/data/images \
         --answers-file $VAST/eval/gqa/answers/$SPLIT/$CKPT/${CHUNKS}_${IDX}.jsonl \
