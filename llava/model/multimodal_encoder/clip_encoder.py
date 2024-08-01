@@ -143,7 +143,8 @@ class VaRVisionTower(CLIPVisionTower):
             state_dict = dict()
             for key, value in temp_state_dict.items():
                 state_dict[key.replace('vision_tower.', '')] = value
-            self.vision_tower.load_state_dict(state_dict)
+            msg = self.vision_tower.load_state_dict(state_dict, strict=False)
+            print(msg)
             self.is_frozen = True
         else:
             self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
