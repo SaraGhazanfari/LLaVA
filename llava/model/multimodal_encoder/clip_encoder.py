@@ -122,7 +122,7 @@ class VaRVisionTower(CLIPVisionTower):
         is_absolute_path_exists = os.path.exists(self.vision_tower_name)
         if is_absolute_path_exists:
             self.vision_tower = PromptedVisionTransformer(**vision_config)
-            self.vision_tower.load_state_dict(torch.load(self.vision_tower))
+            self.vision_tower.load_state_dict(torch.load(self.vision_tower_name))
             self.is_frozen = True
         else:
             self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
