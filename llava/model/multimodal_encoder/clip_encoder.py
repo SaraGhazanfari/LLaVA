@@ -93,7 +93,7 @@ class CLIPVisionTower(nn.Module):
 
 class VaRVisionTower(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
-        super().__init__(vision_tower, args, delay_load)
+        # super().__init__(vision_tower, args, delay_load)
 
         self.is_loaded = False
         self.is_frozen = False
