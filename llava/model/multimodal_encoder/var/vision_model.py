@@ -461,6 +461,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
         print(x.shape)
+        print(_expand_token(self.class_embedding, x.shape[0]).shape)
         print('==============================================')
         # class embeddings and positional embeddings
         x = torch.cat([_expand_token(self.class_embedding, x.shape[0]).to(x.dtype), x], dim=1)
