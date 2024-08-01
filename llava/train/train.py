@@ -18,6 +18,7 @@ import copy
 import json
 import logging
 import os
+import pathlib
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Sequence
 
@@ -181,7 +182,7 @@ def find_all_linear_names(model):
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
                                    output_dir: str):
     """Collects the state dict and dump to disk."""
-    print('we are here safe_save_model_for_hf_trainer')
+
     torch.save(trainer.model.get_vision_tower().state_dict(), os.path.join(output_dir, f'vision_tower.bin'))
     if getattr(trainer.args, "tune_mm_mlp_adapter", False):
         # Only save Adapter
@@ -980,10 +981,10 @@ def train(attn_implementation=None):
                            args=training_args,
                            **data_module)
 
-    # if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
-    #     trainer.train(resume_from_checkpoint=True)
-    # else:
-    #     trainer.train()
+    if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
+        trainer.train(resume_from_checkpoint=True)
+    else:
+        trainer.train()
     trainer.save_state()
 
     model.config.use_cache = True
