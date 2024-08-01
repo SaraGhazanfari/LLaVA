@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 
@@ -118,7 +120,12 @@ class VaRVisionTower(CLIPVisionTower):
             "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
             "output_dim": 768, "pool_type": "none"  # No pooling needed
         }
-        self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
+        is_absolute_path_exists = os.path.exists(self.vision_tower_name)
+        if is_absolute_path_exists:
+            self.vision_tower = PromptedVisionTransformer(**vision_config)
+            self.vision_tower.load_state_dict(torch.load(self.vision_tower))
+        else:
+            self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
         if device_map:
             self.vision_tower.to('cuda:0')
         self.vision_tower.proj = None  # No projection from 1024 to 768 needed
