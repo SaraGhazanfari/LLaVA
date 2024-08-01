@@ -182,6 +182,7 @@ def find_all_linear_names(model):
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
                                    output_dir: str):
     """Collects the state dict and dump to disk."""
+    print('we are here safe_save_model_for_hf_trainer')
     torch.save(trainer.model.get_vision_tower().state_dict(), f'vision_tower.bin')
     if getattr(trainer.args, "tune_mm_mlp_adapter", False):
         # Only save Adapter
