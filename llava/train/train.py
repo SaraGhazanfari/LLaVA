@@ -984,6 +984,7 @@ def train(attn_implementation=None):
     #     trainer.train(resume_from_checkpoint=True)
     # else:
     #     trainer.train()
+    print(model)
     trainer.save_state()
 
     model.config.use_cache = True
