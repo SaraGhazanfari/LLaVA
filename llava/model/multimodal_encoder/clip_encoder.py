@@ -141,7 +141,7 @@ class VaRVisionTower(CLIPVisionTower):
             self.vision_tower = PromptedVisionTransformer(**vision_config)
             temp_state_dict = torch.load(self.vision_tower_name)
             state_dict = dict()
-            for key, value in temp_state_dict:
+            for key, value in temp_state_dict.items():
                 state_dict[key.replace('vision_tower.', '')] = value
             self.vision_tower.load_state_dict(state_dict)
             self.is_frozen = True
