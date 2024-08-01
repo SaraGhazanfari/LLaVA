@@ -206,7 +206,10 @@ class LlavaMetaForCausalLM(ABC):
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
-            image_features = self.encode_images(images, [self.get_model().embed_tokens(input_ids), attention_mask])
+            instruct = [input_ids.copy(), attention_mask.copy()]
+            instruct[1][instruct < 0] = 0
+            instruct[0][instruct < 0] = 0
+            image_features = self.encode_images(images, [self.get_model().embed_tokens(instruct[0]), instruct[1]])
 
         # TODO: image start / end is not implemented here to support pretraining.
         if getattr(self.config, 'tune_mm_mlp_adapter', False) and getattr(self.config, 'mm_use_im_start_end', False):
