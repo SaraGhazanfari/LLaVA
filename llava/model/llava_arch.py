@@ -154,7 +154,7 @@ class LlavaMetaForCausalLM(ABC):
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
             concat_images = torch.cat([image for image in images], dim=0)
-            instruct = [input_ids.copy(), attention_mask.copy()]
+            instruct = [input_ids.clone(), attention_mask.clone()]
             instruct[1][instruct < 0] = 0
             instruct[0][instruct < 0] = 0
             image_features = self.encode_images(concat_images,
@@ -206,7 +206,7 @@ class LlavaMetaForCausalLM(ABC):
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
-            instruct = [input_ids.copy(), attention_mask.copy()]
+            instruct = [input_ids.clone(), attention_mask.clone()]
             instruct[1][instruct < 0] = 0
             instruct[0][instruct < 0] = 0
             image_features = self.encode_images(images, [self.get_model().embed_tokens(instruct[0]), instruct[1]])
