@@ -182,7 +182,7 @@ def find_all_linear_names(model):
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
                                    output_dir: str):
     """Collects the state dict and dump to disk."""
-    torch.save(trainer.model.vision_tower.state_dict(), f'vision_tower.bin')
+    torch.save(trainer.model.get_vision_tower().state_dict(), f'vision_tower.bin')
     if getattr(trainer.args, "tune_mm_mlp_adapter", False):
         # Only save Adapter
         keys_to_match = ['mm_projector']
@@ -984,7 +984,6 @@ def train(attn_implementation=None):
     #     trainer.train(resume_from_checkpoint=True)
     # else:
     #     trainer.train()
-    print(model)
     trainer.save_state()
 
     model.config.use_cache = True
