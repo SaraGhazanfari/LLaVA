@@ -14,13 +14,13 @@ class CLIPVisionTower(nn.Module):
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
-
-        if not delay_load:
-            self.load_model()
-        elif getattr(args, 'unfreeze_mm_vision_tower', False):
-            self.load_model()
-        else:
-            self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
+        self.load_model()
+        # if not delay_load:
+        #     self.load_model()
+        # elif getattr(args, 'unfreeze_mm_vision_tower', False):
+        #     self.load_model()
+        # else:
+        #     self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
 
     def load_model(self, device_map=None):
         if self.is_loaded:
@@ -93,7 +93,7 @@ class CLIPVisionTower(nn.Module):
 
 class VaRVisionTower(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
-        # super().__init__(vision_tower, args, delay_load)
+        super().__init__(vision_tower, args, delay_load)
 
         self.is_loaded = False
         self.is_frozen = False
