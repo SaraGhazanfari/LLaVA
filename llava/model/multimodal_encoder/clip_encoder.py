@@ -109,27 +109,18 @@ class VaRVisionTower(CLIPVisionTower):
             self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
 
     def load_model(self, device_map=None):
-        from .var.vision_model import PromptedVisionTransformer
-        from transformers import AutoTokenizer
-        from .var.transform import PreprocessCfg, image_transform_v2
+
         if self.is_loaded:
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
-        vision_config = {
-            "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
-            "output_dim": 768, "pool_type": "none"  # No pooling needed
-        }
-        is_absolute_path_exists = os.path.exists(self.vision_tower_name)
-        if is_absolute_path_exists:
-            self.vision_tower = PromptedVisionTransformer(**vision_config)
-            self.vision_tower.load_state_dict(torch.load(self.vision_tower_name))
-            self.is_frozen = True
-        else:
-            self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
-        if device_map:
-            self.vision_tower.to('cuda:0')
-        self.vision_tower.proj = None  # No projection from 1024 to 768 needed
-        self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5")
+        self.load_var_model(device_map)
+        self.load_var_processor()
+        if self.is_frozen:
+            self.vision_tower.requires_grad_(False)
+        self.is_loaded = True
+
+    def load_var_processor(self):
+        from .var.transform import PreprocessCfg, image_transform_v2
         preprocess_dict = {'size': (336, 336),
                            'mode': 'RGB',
                            'mean': (0.48145466, 0.4578275, 0.40821073),
@@ -138,9 +129,27 @@ class VaRVisionTower(CLIPVisionTower):
                            'resize_mode': 'shortest',
                            'fill_color': 0}
         self.image_processor = image_transform_v2(PreprocessCfg(**preprocess_dict), is_train=False)
-        if self.is_frozen:
-            self.vision_tower.requires_grad_(False)
-        self.is_loaded = True
+
+    def load_var_model(self, device_map):
+        vision_config = {
+            "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
+            "output_dim": 768, "pool_type": "none"  # No pooling needed
+        }
+        is_absolute_path_exists = os.path.exists(self.vision_tower_name)
+        from .var.vision_model import PromptedVisionTransformer
+        if is_absolute_path_exists:
+            self.vision_tower = PromptedVisionTransformer(**vision_config)
+            temp_state_dict = torch.load(self.vision_tower_name)
+            state_dict = dict()
+            for key, value in temp_state_dict:
+                state_dict[key.replace('vision_tower.', '')] = value
+            self.vision_tower.load_state_dict(state_dict)
+            self.is_frozen = True
+        else:
+            self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
+        if device_map:
+            self.vision_tower.to('cuda:0')
+        self.vision_tower.proj = None  # No projection from 1024 to 768 needed
 
     def feature_select(self, image_forward_outs):
         image_features = image_forward_outs[self.select_layer]
