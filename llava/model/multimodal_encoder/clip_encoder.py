@@ -170,7 +170,7 @@ class VaRVisionTower(CLIPVisionTower):
                 image_feature = self.single_forward(image.unsqueeze(0), instruct)
                 image_features.append(image_feature)
         else:
-            image_features = self.single_forward(images.unsqueeze(0), instruct)
+            image_features = self.single_forward(images, instruct)
 
         return image_features
 
