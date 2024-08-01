@@ -146,17 +146,17 @@ class VaRVisionTower(CLIPVisionTower):
 
     # @torch.no_grad()
     def forward(self, images, instruct=None):
-        print(instruct[0].shape, instruct[1].shape)
+
         if type(images) is list:
             image_features = []
             for image in images:
                 image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
-                                                      prompt=instruct[0][:, 2:], attn_mask=instruct[1][:, 2:])
+                                                      prompt=instruct[0], attn_mask=instruct[1])
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
                 image_features.append(image_feature)
         else:
             image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
-                                                   prompt=instruct[0][:, 2:], attn_mask=instruct[1][:, 2:])
+                                                   prompt=instruct[0], attn_mask=instruct[1])
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
 
         return image_features
