@@ -2,7 +2,6 @@ import os
 
 import torch
 import torch.nn as nn
-
 from transformers import CLIPVisionModel, CLIPImageProcessor, CLIPVisionConfig
 
 
@@ -97,7 +96,7 @@ class VaRVisionTower(CLIPVisionTower):
         super().__init__(vision_tower, args, delay_load)
 
         self.is_loaded = False
-
+        self.is_frozen = False
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
@@ -124,6 +123,7 @@ class VaRVisionTower(CLIPVisionTower):
         if is_absolute_path_exists:
             self.vision_tower = PromptedVisionTransformer(**vision_config)
             self.vision_tower.load_state_dict(torch.load(self.vision_tower))
+            self.is_frozen = True
         else:
             self.vision_tower = PromptedVisionTransformer.from_pretrained(self.vision_tower_name, **vision_config)
         if device_map:
@@ -138,7 +138,8 @@ class VaRVisionTower(CLIPVisionTower):
                            'resize_mode': 'shortest',
                            'fill_color': 0}
         self.image_processor = image_transform_v2(PreprocessCfg(**preprocess_dict), is_train=False)
-        # self.vision_tower.requires_grad_(False)
+        if self.is_frozen:
+            self.vision_tower.requires_grad_(False)
         self.is_loaded = True
 
     def feature_select(self, image_forward_outs):
@@ -151,22 +152,28 @@ class VaRVisionTower(CLIPVisionTower):
             raise ValueError(f'Unexpected select feature: {self.select_feature}')
         return image_features
 
-    # @torch.no_grad()
     def forward(self, images, instruct=None):
 
         if type(images) is list:
             image_features = []
             for image in images:
-                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
-                                                      prompt=instruct[0], attn_mask=instruct[1])
-                image_feature = self.feature_select(image_forward_out).to(image.dtype)
+                image_feature = self.single_forward(image.unsqueeze(0), instruct)
                 image_features.append(image_feature)
         else:
-            image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype),
-                                                   prompt=instruct[0], attn_mask=instruct[1])
-            image_features = self.feature_select(image_forward_outs).to(images.dtype)
+            image_features = self.single_forward(images.unsqueeze(0), instruct)
 
         return image_features
+
+    def single_forward(self, image, instruct):
+        if self.is_frozen:
+            with torch.no_grad():
+                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
+                                                      prompt=instruct[0], attn_mask=instruct[1])
+        else:
+            image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
+                                                  prompt=instruct[0], attn_mask=instruct[1])
+        image_feature = self.feature_select(image_forward_out).to(image.dtype)
+        return image_feature
 
     @property
     def config(self):
