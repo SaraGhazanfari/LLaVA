@@ -154,8 +154,11 @@ class LlavaMetaForCausalLM(ABC):
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
             concat_images = torch.cat([image for image in images], dim=0)
+            instruct = [input_ids.copy(), attention_mask.copy()]
+            instruct[1][instruct < 0] = 0
+            instruct[0][instruct < 0] = 0
             image_features = self.encode_images(concat_images,
-                                                [self.get_model().embed_tokens(input_ids), attention_mask])
+                                                [self.get_model().embed_tokens(instruct[0]), instruct[1]])
             split_sizes = [image.shape[0] for image in images]
             image_features = torch.split(image_features, split_sizes, dim=0)
             mm_patch_merge_type = getattr(self.config, 'mm_patch_merge_type', 'flat')
