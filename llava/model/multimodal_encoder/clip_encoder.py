@@ -10,7 +10,7 @@ class CLIPVisionTower(nn.Module):
         super().__init__()
 
         self.is_loaded = False
-
+        self.is_frozen = False
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
@@ -95,8 +95,8 @@ class VaRVisionTower(CLIPVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
         super().__init__(vision_tower, args, delay_load)
 
-        self.is_loaded = False
-        self.is_frozen = False
+        # self.is_loaded = False
+
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
