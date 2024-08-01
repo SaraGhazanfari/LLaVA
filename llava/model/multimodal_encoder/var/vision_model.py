@@ -387,7 +387,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         self.patch_dropout = PatchDropout(patch_dropout) if patch_dropout > 0. else nn.Identity()
 
         self.ln_pre = nn.Identity() if no_ln_pre else norm_layer(width)
-        self.text_embedding = nn.Embedding(num_embeddings=32000, embedding_dim=4096, padding_idx=0)
+        # self.text_embedding = nn.Embedding(num_embeddings=32000, embedding_dim=4096, padding_idx=0)
         self.text_projector = nn.Linear(width * 4, width)
         self.cross_attention = ResidualAttentionBlock(width, heads, mlp_ratio=4.0, act_layer=nn.GELU,
                                                       norm_layer=LayerNorm, is_cross_attention=True,
@@ -466,7 +466,7 @@ class PromptedVisionTransformer(nn.Module, PyTorchModelHubMixin):
         # shape = [*, grid ** 2 + 1, width]
         x = x + self.positional_embedding.to(x.dtype)
 
-        prompt = self.text_embedding(prompt)
+        # prompt = self.text_embedding(prompt)
         prompt = self.text_projector(prompt)
         attn_mask = attn_mask.unsqueeze(dim=1).unsqueeze(dim=1).repeat((1, self.heads, x.shape[1], 1))
         attn_mask = attn_mask.reshape(-1, attn_mask.shape[2], attn_mask.shape[3])

@@ -131,7 +131,7 @@ class VaRVisionTower(CLIPVisionTower):
                            'resize_mode': 'shortest',
                            'fill_color': 0}
         self.image_processor = image_transform_v2(PreprocessCfg(**preprocess_dict), is_train=False)
-        self.vision_tower.requires_grad_(False)
+        # self.vision_tower.requires_grad_(False)
         self.is_loaded = True
 
     def feature_select(self, image_forward_outs):
@@ -144,7 +144,7 @@ class VaRVisionTower(CLIPVisionTower):
             raise ValueError(f'Unexpected select feature: {self.select_feature}')
         return image_features
 
-    @torch.no_grad()
+    # @torch.no_grad()
     def forward(self, images, instruct=None):
         instruct[0][instruct[0] < 0] = 0
         if instruct[1]:
