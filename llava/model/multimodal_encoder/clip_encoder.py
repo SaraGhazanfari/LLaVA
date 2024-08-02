@@ -165,7 +165,6 @@ class VaRVisionTower(CLIPVisionTower):
                 image_features.append(image_feature)
         else:
             image_features = self.single_forward(images, instruct)
-        torch.cuda.empty_cache()
 
         return image_features
 
@@ -177,7 +176,6 @@ class VaRVisionTower(CLIPVisionTower):
         else:
             image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
                                                   prompt=instruct[0], attn_mask=instruct[1])
-        print(image_forward_out.requires_grad)
         image_feature = self.feature_select(image_forward_out).to(image.dtype)
         return image_feature
 
