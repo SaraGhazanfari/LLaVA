@@ -101,12 +101,6 @@ class VaRVisionTower(CLIPVisionTower):
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
         self.load_model()
-        # if not delay_load:
-        #     self.load_model()
-        # elif getattr(args, 'unfreeze_mm_vision_tower', False):
-        #     self.load_model()
-        # else:
-        #     self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
 
     def load_model(self, device_map=None):
 
@@ -178,11 +172,11 @@ class VaRVisionTower(CLIPVisionTower):
         if self.is_frozen:
             with torch.no_grad():
                 image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
-                                                      prompt=instruct[0].detach().clone(),
-                                                      attn_mask=instruct[1].detach().clone())
+                                                      prompt=instruct[0], attn_mask=instruct[1])
         else:
             image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
                                                   prompt=instruct[0], attn_mask=instruct[1])
+        print(image_forward_out.requires_grad)
         image_feature = self.feature_select(image_forward_out).to(image.dtype)
         return image_feature
 
