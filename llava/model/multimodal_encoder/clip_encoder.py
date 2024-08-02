@@ -183,7 +183,6 @@ class VaRVisionTower(CLIPVisionTower):
         else:
             image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
                                                   prompt=instruct[0], attn_mask=instruct[1])
-        print(image_forward_out.requires_grad)
         image_feature = self.feature_select(image_forward_out).to(image.dtype)
         return image_feature
 
