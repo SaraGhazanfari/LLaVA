@@ -983,7 +983,8 @@ def train(attn_implementation=None):
                            tokenizer=tokenizer,
                            args=training_args,
                            **data_module)
-
+    for name, param in model.named_parameters():
+        print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
