@@ -178,7 +178,8 @@ class VaRVisionTower(CLIPVisionTower):
         if self.is_frozen:
             with torch.no_grad():
                 image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
-                                                      prompt=instruct[0].detach(), attn_mask=instruct[1].detach())
+                                                      prompt=instruct[0].detach().clone(),
+                                                      attn_mask=instruct[1].detach().clone())
         else:
             image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
                                                   prompt=instruct[0], attn_mask=instruct[1])
