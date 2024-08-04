@@ -154,9 +154,7 @@ class LlavaMetaForCausalLM(ABC):
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
             concat_images = torch.cat([image for image in images], dim=0)
-            instruct = [input_ids.clone(), attention_mask.clone()]
-            instruct[1][instruct[0] < 0] = 0
-            instruct[0][instruct[0] < 0] = 0
+            instruct = self.create_instruct_for_vision_encoder(attention_mask, input_ids)
             image_features = self.encode_images(concat_images,
                                                 [self.get_model().embed_tokens(instruct[0]), instruct[1]])
             split_sizes = [image.shape[0] for image in images]
@@ -206,9 +204,7 @@ class LlavaMetaForCausalLM(ABC):
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
-            instruct = [input_ids.clone(), attention_mask.clone()]
-            instruct[1][instruct[0] < 0] = 0
-            instruct[0][instruct[0] < 0] = 0
+            instruct = self.create_instruct_for_vision_encoder(attention_mask, input_ids)
             image_features = self.encode_images(images, [self.get_model().embed_tokens(instruct[0]), instruct[1]])
 
         # TODO: image start / end is not implemented here to support pretraining.
@@ -341,6 +337,17 @@ class LlavaMetaForCausalLM(ABC):
             position_ids = None
 
         return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
+
+    def create_instruct_for_vision_encoder(self, attention_mask, input_ids):
+        instruct = [input_ids.clone()]
+        if attention_mask:
+            instruct.append(attention_mask.clone())
+        else:
+            instruct.append(torch.full_like(instruct[0]))
+
+        instruct[1][instruct[0] < 0] = 0
+        instruct[0][instruct[0] < 0] = 0
+        return instruct
 
     def initialize_vision_tokenizer(self, model_args, tokenizer):
         if model_args.mm_use_im_patch_token:
