@@ -14,3 +14,6 @@ model_path = os.path.expanduser('/scratch/sg7457/code/LLaVA/checkpoints/v1/llava
 model_name = get_model_name_from_path(model_path)
 _, v1_model, _, _ = load_pretrained_model(model_path, model_base, model_name)
 
+for name, parameter in v2_model.state_dict.items():
+    if parameter.equal(v1_model.state_dict.get(name)):
+        print(name)
