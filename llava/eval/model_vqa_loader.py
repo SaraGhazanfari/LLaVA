@@ -85,7 +85,10 @@ def eval_model(args):
     print(model_name)
     print('=======================================')
     tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
-
+    print(tokenizer)
+    print(model)
+    print(image_processor)
+    print(context_len)
     questions = [json.loads(q) for q in open(os.path.expanduser(args.question_file), "r")]
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
     answers_file = os.path.expanduser(args.answers_file)
