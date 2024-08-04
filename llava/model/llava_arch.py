@@ -343,7 +343,7 @@ class LlavaMetaForCausalLM(ABC):
         if attention_mask:
             instruct.append(attention_mask.clone())
         else:
-            instruct.append(torch.full_like(instruct[0]))
+            instruct.append(torch.ones_like(instruct[0]))
 
         instruct[1][instruct[0] < 0] = 0
         instruct[0][instruct[0] < 0] = 0
