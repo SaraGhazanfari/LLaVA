@@ -10,7 +10,7 @@ class CLIPVisionTower(nn.Module):
         super().__init__()
 
         self.is_loaded = False
-        self.is_frozen = False
+        self.is_frozen = True
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
@@ -125,9 +125,6 @@ class VaRVisionTower(CLIPVisionTower):
         self.image_processor = image_transform_v2(PreprocessCfg(**preprocess_dict), is_train=False)
 
     def load_var_model(self, device_map):
-        print('=======================================')
-        print(self.vision_tower_name)
-        print('=======================================')
         vision_config = {
             "image_size": 336, "layers": 24, "width": 1024, "patch_size": 14, "mlp_ratio": 4, "heads": 16,
             "output_dim": 768, "pool_type": "none"  # No pooling needed
