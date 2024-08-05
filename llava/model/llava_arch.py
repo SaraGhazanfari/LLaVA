@@ -340,7 +340,7 @@ class LlavaMetaForCausalLM(ABC):
 
     def create_instruct_for_vision_encoder(self, attention_mask, input_ids):
         instruct = [input_ids.clone()]
-        if attention_mask:
+        if attention_mask is not None:
             instruct.append(attention_mask.clone())
         else:
             instruct.append(torch.ones_like(instruct[0]))
