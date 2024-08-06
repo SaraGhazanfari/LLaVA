@@ -10,7 +10,7 @@ class CLIPVisionTower(nn.Module):
         super().__init__()
 
         self.is_loaded = False
-        self.is_frozen = True
+        self.is_frozen = False
         self.vision_tower_name = vision_tower
         self.select_layer = args.mm_vision_select_layer
         self.select_feature = getattr(args, 'mm_vision_select_feature', 'patch')
