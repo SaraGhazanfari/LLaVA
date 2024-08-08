@@ -3,6 +3,8 @@ from itertools import repeat
 
 import numpy as np
 
+from llava.model.multimodal_encoder.var.tokenizer import SimpleTokenizer
+
 
 def _ntuple(n):
     def parse(x):
@@ -65,3 +67,20 @@ def get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
 
     emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
     return emb
+
+
+def get_tokenizer(context_length=77):
+    tokenizer_kwargs = {
+        "context_length": 77,
+        "vocab_size": 49408,
+        "width": 768,
+        "heads": 12,
+        "layers": 12
+    }
+
+    tokenizer = SimpleTokenizer(
+        context_length=context_length,
+        **tokenizer_kwargs,
+    )
+
+    return tokenizer

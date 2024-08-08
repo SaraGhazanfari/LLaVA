@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from transformers import CLIPVisionModel, CLIPImageProcessor, CLIPVisionConfig
 
+from llava.model.multimodal_encoder.var.utils import get_tokenizer
+
 
 class CLIPVisionTower(nn.Module):
     def __init__(self, vision_tower, args, delay_load=False):
@@ -108,6 +110,7 @@ class VaRVisionTower(CLIPVisionTower):
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
         self.load_var_model(device_map)
+        self.tokenizer = get_tokenizer()
         self.load_var_processor()
         if self.is_frozen:
             self.vision_tower.requires_grad_(False)
@@ -175,11 +178,9 @@ class VaRVisionTower(CLIPVisionTower):
     def single_forward(self, image, instruct):
         if self.is_frozen:
             with torch.no_grad():
-                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
-                                                      prompt=instruct[0], attn_mask=instruct[1])
+                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype), prompt=instruct)
         else:
-            image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype),
-                                                  prompt=instruct[0], attn_mask=instruct[1])
+            image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype), prompt=instruct)
         image_feature = self.feature_select(image_forward_out).to(image.dtype)
         return image_feature
 

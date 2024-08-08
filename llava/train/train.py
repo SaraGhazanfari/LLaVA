@@ -663,12 +663,14 @@ class LazySupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, data_path: str,
+                 prompt_tokenizer,
                  tokenizer: transformers.PreTrainedTokenizer,
                  data_args: DataArguments):
         super(LazySupervisedDataset, self).__init__()
         list_data_dict = json.load(open(data_path, "r"))
 
         rank0_print("Formatting inputs...Skip in lazy mode")
+        self.prompt_tokenizer = prompt_tokenizer
         self.tokenizer = tokenizer
         self.list_data_dict = list_data_dict
         self.data_args = data_args
@@ -732,12 +734,16 @@ class LazySupervisedDataset(Dataset):
                 self.data_args)
         else:
             sources = copy.deepcopy([e["conversations"] for e in sources])
+        prompt_dict = preprocess(
+            sources,
+            self.prompt_tokenizer,
+            has_image=('image' in self.list_data_dict[i]))
         data_dict = preprocess(
             sources,
             self.tokenizer,
             has_image=('image' in self.list_data_dict[i]))
         if isinstance(i, int):
-            data_dict = dict(input_ids=data_dict["input_ids"][0],
+            data_dict = dict(prompt_idx=prompt_dict["input_ids"], input_ids=data_dict["input_ids"][0],
                              labels=data_dict["labels"][0])
 
         # image exist in the data
@@ -784,12 +790,11 @@ class DataCollatorForSupervisedDataset(object):
         return batch
 
 
-def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
+def make_supervised_data_module(prompt_tokenizer, tokenizer: transformers.PreTrainedTokenizer,
                                 data_args) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = LazySupervisedDataset(tokenizer=tokenizer,
-                                          data_path=data_args.data_path,
-                                          data_args=data_args)
+    train_dataset = LazySupervisedDataset(prompt_tokenizer=prompt_tokenizer, tokenizer=tokenizer,
+                                          data_path=data_args.data_path, data_args=data_args)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset,
                 eval_dataset=None,
@@ -978,7 +983,7 @@ def train(attn_implementation=None):
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
 
-    data_module = make_supervised_data_module(tokenizer=tokenizer,
+    data_module = make_supervised_data_module(prompt_tokenizer=vision_tower.tokenizer, tokenizer=tokenizer,
                                               data_args=data_args)
     trainer = LLaVATrainer(model=model,
                            tokenizer=tokenizer,
