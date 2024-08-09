@@ -593,6 +593,7 @@ def preprocess_plain(
     tokenizer: transformers.PreTrainedTokenizer,
 ) -> Dict:
     # add end signal and concatenate together
+    print(sources)
     conversations = []
     for source in sources:
         assert len(source) == 2
@@ -608,6 +609,7 @@ def preprocess_plain(
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
     print(dict(input_ids=input_ids, labels=targets))
+    print("======================================")
     return dict(input_ids=input_ids, labels=targets)
 
 
