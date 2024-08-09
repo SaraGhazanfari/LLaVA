@@ -160,18 +160,15 @@ class VaRVisionTower(CLIPVisionTower):
         return image_features
 
     def forward(self, images, instruct=None):
-        # allocated_memory = torch.cuda.memory_allocated()
-        # cached_memory = torch.cuda.memory_reserved()
+        # if type(images) is list:
+        #     image_features = []
+        #     for image in images:
+        #         image_feature = self.single_forward(image.unsqueeze(0), instruct)
+        #         image_features.append(image_feature)
+        # else:
+        #     image_features = self.single_forward(images, instruct)
         #
-        # print(f"Allocated Memory: {allocated_memory / 1024 ** 2:.2f} MB")
-        # print(f"Cached Memory: {cached_memory / 1024 ** 2:.2f} MB")
-        if type(images) is list:
-            image_features = []
-            for image in images:
-                image_feature = self.single_forward(image.unsqueeze(0), instruct)
-                image_features.append(image_feature)
-        else:
-            image_features = self.single_forward(images, instruct)
+        image_features = torch.zeros((images.shape(0), 577, 1024), device=images.device)
 
         return image_features
 
