@@ -447,7 +447,7 @@ def preprocess_v1(
             max_length=tokenizer.model_max_length,
             truncation=True,
         ).input_ids
-
+    print(input_ids.shape)
     targets = input_ids.clone()
 
     assert conv.sep_style == conversation_lib.SeparatorStyle.TWO
