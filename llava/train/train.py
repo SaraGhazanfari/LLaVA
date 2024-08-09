@@ -591,7 +591,6 @@ def preprocess_plain(
     tokenizer: transformers.PreTrainedTokenizer,
 ) -> Dict:
     # add end signal and concatenate together
-    print('sources', sources)
     conversations = []
     for source in sources:
         assert len(source) == 2
@@ -660,7 +659,7 @@ def preprocess_vision_prompt(sources, prompt_tokenizer):
     sources = sources[0]
     assert len(sources) == 2
     print(sources[0])
-    prompt = sources[0].replace('\n<image>', '').replace('<image>\n', '')
+    prompt = sources[0]['value'].replace('\n<image>', '').replace('<image>\n', '')
     print(prompt)
     return prompt_tokenizer(prompt)
 
