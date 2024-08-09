@@ -69,15 +69,15 @@ def get_2d_sincos_pos_embed_from_grid(embed_dim, grid):
     return emb
 
 
-def get_tokenizer():
-    tokenizer_kwargs = {
-        "context_length": 77,
-        "vocab_size": 49408,
-        "width": 768,
-        "heads": 12,
-        "layers": 12
-    }
+def get_tokenizer(context_length=77):
+    # tokenizer_kwargs = {
+    #     "context_length": 77,
+    #     "vocab_size": 49408,
+    #     "width": 768,
+    #     "heads": 12,
+    #     "layers": 12
+    # }
 
-    tokenizer = SimpleTokenizer(**tokenizer_kwargs)
+    tokenizer = SimpleTokenizer(context_length)
 
     return tokenizer
