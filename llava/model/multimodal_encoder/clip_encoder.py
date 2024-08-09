@@ -168,7 +168,7 @@ class VaRVisionTower(CLIPVisionTower):
         # else:
         #     image_features = self.single_forward(images, instruct)
         #
-        image_features = torch.zeros((images.shape(0), 577, 1024), device=images.device)
+        image_features = torch.zeros((images.shape[0], 577, 1024), device=images.device)
 
         return image_features
 
