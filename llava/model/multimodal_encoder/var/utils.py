@@ -78,6 +78,6 @@ def get_tokenizer(context_length=77):
     #     "layers": 12
     # }
 
-    tokenizer = SimpleTokenizer(context_length)
+    tokenizer = SimpleTokenizer(context_length=context_length)
 
     return tokenizer
