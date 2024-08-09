@@ -739,13 +739,15 @@ class LazySupervisedDataset(Dataset):
             self.tokenizer,
             has_image=('image' in self.list_data_dict[i]))
 
-        prompt_dict = preprocess(
-            sources,
-            self.prompt_tokenizer,
-            has_image=('image' in self.list_data_dict[i]))
+        # prompt_dict = preprocess(
+        #     sources,
+        #     self.prompt_tokenizer,
+        #     has_image=('image' in self.list_data_dict[i]))
         if isinstance(i, int):
-            data_dict = dict(prompt_idx=prompt_dict["input_ids"], input_ids=data_dict["input_ids"][0],
-                             labels=data_dict["labels"][0])
+            data_dict = dict(input_ids=data_dict["input_ids"][0],
+                              labels=data_dict["labels"][0])
+            # data_dict = dict(prompt_idx=prompt_dict["input_ids"], input_ids=data_dict["input_ids"][0],
+            #                  labels=data_dict["labels"][0])
 
         # image exist in the data
         if 'image' in self.list_data_dict[i]:
