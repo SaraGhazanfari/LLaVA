@@ -734,13 +734,14 @@ class LazySupervisedDataset(Dataset):
                 self.data_args)
         else:
             sources = copy.deepcopy([e["conversations"] for e in sources])
-        prompt_dict = preprocess(
-            sources,
-            self.prompt_tokenizer,
-            has_image=('image' in self.list_data_dict[i]))
         data_dict = preprocess(
             sources,
             self.tokenizer,
+            has_image=('image' in self.list_data_dict[i]))
+
+        prompt_dict = preprocess(
+            sources,
+            self.prompt_tokenizer,
             has_image=('image' in self.list_data_dict[i]))
         if isinstance(i, int):
             data_dict = dict(prompt_idx=prompt_dict["input_ids"], input_ids=data_dict["input_ids"][0],
