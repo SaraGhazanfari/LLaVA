@@ -435,7 +435,7 @@ def preprocess_v1(
         conversations.append(conv.get_prompt())
 
     # Tokenize conversations
-
+    print(conversations)
     if has_image:
         input_ids = torch.stack(
             [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
@@ -600,17 +600,13 @@ def preprocess_plain(
         assert DEFAULT_IMAGE_TOKEN in source[0]['value']
         source[0]['value'] = DEFAULT_IMAGE_TOKEN
         conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep
-        print('source_0 + source_1', source[0]['value'] + source[1]['value'])
         conversations.append(conversation)
     # tokenize conversations
-    print('conversations', conversations)
     input_ids = [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations]
     targets = copy.deepcopy(input_ids)
     for target, source in zip(targets, sources):
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
-    print(dict(input_ids=input_ids, labels=targets))
-    print("======================================")
     return dict(input_ids=input_ids, labels=targets)
 
 
