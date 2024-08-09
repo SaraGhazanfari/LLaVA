@@ -646,7 +646,7 @@ def preprocess(
     else:
         conversations_tokenized = _tokenize_fn(conversations, tokenizer)
         input_ids = conversations_tokenized["input_ids"]
-
+    print(conversations)
     targets = copy.deepcopy(input_ids)
     for target, source in zip(targets, sources):
         if has_image:
@@ -655,7 +655,7 @@ def preprocess(
             tokenized_lens = _tokenize_fn([header] + [s["value"] for s in source], tokenizer)["input_ids_lens"]
         speakers = [sentence["from"] for sentence in source]
         _mask_targets(target, tokenized_lens, speakers)
-
+    print(dict(input_ids=input_ids, labels=targets))
     return dict(input_ids=input_ids, labels=targets)
 
 
