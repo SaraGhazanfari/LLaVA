@@ -160,15 +160,13 @@ class VaRVisionTower(CLIPVisionTower):
         return image_features
 
     def forward(self, images, instruct=None):
-        # if type(images) is list:
-        #     image_features = []
-        #     for image in images:
-        #         image_feature = self.single_forward(image.unsqueeze(0), instruct)
-        #         image_features.append(image_feature)
-        # else:
-        #     image_features = self.single_forward(images, instruct)
-        #
-        image_features = torch.zeros((images.shape[0], 577, 1024), device=self.device, dtype=self.dtype)
+        if type(images) is list:
+            image_features = []
+            for image in images:
+                image_feature = self.single_forward(image.unsqueeze(0), instruct)
+                image_features.append(image_feature)
+        else:
+            image_features = self.single_forward(images, instruct)
 
         return image_features
 

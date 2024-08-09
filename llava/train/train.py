@@ -655,6 +655,16 @@ def preprocess(
     return dict(input_ids=input_ids, labels=targets)
 
 
+def preprocess_vision_prompt(sources, prompt_tokenizer):
+    assert len(sources) == 1
+    sources = sources[0]
+    assert len(sources) == 2
+    print(sources[0])
+    prompt = sources[0].replace('\n<image>', '').replace('<image>\n', '')
+    print(prompt)
+    return prompt_tokenizer(prompt)
+
+
 class LazySupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
@@ -735,15 +745,11 @@ class LazySupervisedDataset(Dataset):
             self.tokenizer,
             has_image=('image' in self.list_data_dict[i]))
 
-        # prompt_dict = preprocess(
-        #     sources,
-        #     self.prompt_tokenizer,
-        #     has_image=('image' in self.list_data_dict[i]))
+        prompt = preprocess_vision_prompt(sources, self.prompt_tokenizer)
         if isinstance(i, int):
             data_dict = dict(input_ids=data_dict["input_ids"][0],
-                              labels=data_dict["labels"][0])
-            # data_dict = dict(prompt_idx=prompt_dict["input_ids"], input_ids=data_dict["input_ids"][0],
-            #                  labels=data_dict["labels"][0])
+                             labels=data_dict["labels"][0],
+                             prompt_input_ids=prompt)
 
         # image exist in the data
         if 'image' in self.list_data_dict[i]:
