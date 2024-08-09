@@ -655,6 +655,7 @@ def preprocess(
 
 
 def preprocess_vision_prompt(sources, prompt_tokenizer):
+    print(sources)
     assert len(sources) == 1
     sources = sources[0]
     assert len(sources) == 2
