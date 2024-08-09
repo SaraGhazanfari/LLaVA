@@ -600,6 +600,7 @@ def preprocess_plain(
         assert DEFAULT_IMAGE_TOKEN in source[0]['value']
         source[0]['value'] = DEFAULT_IMAGE_TOKEN
         conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep
+        print('source_0 + source_1', source[0]['value'] + source[1]['value'])
         conversations.append(conversation)
     # tokenize conversations
     print('conversations', conversations)
