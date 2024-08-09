@@ -141,6 +141,7 @@ class SimpleTokenizer(object):
     ):
         self.byte_encoder = bytes_to_unicode()
         self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
+        print(bpe_path)
         merges = gzip.open(bpe_path).read().decode("utf-8").split('\n')
         merges = merges[1:49152-256-2+1]
         merges = [tuple(merge.split()) for merge in merges]
@@ -452,7 +453,7 @@ class HFTokenizer:
             )
 
         return input_ids
-    
+
     def set_language(self, src_lang):
         if hasattr(self, 'set_lang_fn'):
             self.set_lang_fn(src_lang)
