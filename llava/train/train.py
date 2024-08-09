@@ -593,7 +593,7 @@ def preprocess_plain(
     tokenizer: transformers.PreTrainedTokenizer,
 ) -> Dict:
     # add end signal and concatenate together
-    print(sources)
+    print('sources', sources)
     conversations = []
     for source in sources:
         assert len(source) == 2
@@ -602,7 +602,7 @@ def preprocess_plain(
         conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep
         conversations.append(conversation)
     # tokenize conversations
-    print(conversations)
+    print('conversations', conversations)
     input_ids = [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations]
     targets = copy.deepcopy(input_ids)
     for target, source in zip(targets, sources):
