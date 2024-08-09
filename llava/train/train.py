@@ -601,12 +601,13 @@ def preprocess_plain(
         conversation = source[0]['value'] + source[1]['value'] + conversation_lib.default_conversation.sep
         conversations.append(conversation)
     # tokenize conversations
+    print(conversations)
     input_ids = [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations]
     targets = copy.deepcopy(input_ids)
     for target, source in zip(targets, sources):
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
-
+    print(dict(input_ids=input_ids, labels=targets))
     return dict(input_ids=input_ids, labels=targets)
 
 
@@ -646,7 +647,6 @@ def preprocess(
     else:
         conversations_tokenized = _tokenize_fn(conversations, tokenizer)
         input_ids = conversations_tokenized["input_ids"]
-    print(conversations)
     targets = copy.deepcopy(input_ids)
     for target, source in zip(targets, sources):
         if has_image:
@@ -655,7 +655,6 @@ def preprocess(
             tokenized_lens = _tokenize_fn([header] + [s["value"] for s in source], tokenizer)["input_ids_lens"]
         speakers = [sentence["from"] for sentence in source]
         _mask_targets(target, tokenized_lens, speakers)
-    print(dict(input_ids=input_ids, labels=targets))
     return dict(input_ids=input_ids, labels=targets)
 
 
